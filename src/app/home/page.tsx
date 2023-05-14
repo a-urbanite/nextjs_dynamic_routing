@@ -1,7 +1,9 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import styles from "./home.module.scss";
 import Link from "next/link";
+import axios from 'axios'
+// import List from "./List";
 // import { Json2Ts } from 'json2ts/src/json2ts';
 
 export interface swapiRes {
@@ -30,21 +32,27 @@ export interface swapiItem {
 }
 
 const Home = () => {
+  // const List = React.lazy(() => import('./List'));
   const [data, setData] = React.useState(null as unknown as swapiRes);
 
   const dataFetch: () => void = async () => {
-    const res = await fetch("https://swapi.dev/api/people");
-    const data = await res.json();
-    setData(data);
+    // const res = await fetch("https://swapi.dev/api/people");
+    // const data = await res.json();
+    // setData(data);
+
+    axios.get('https://swapi.dev/api/people')
+      .then(function (response) {
+        setData(response.data);
+      })
   };
 
   React.useEffect(() => {
     dataFetch();
   }, []);
 
-  React.useEffect(() => {
-    console.log(<pre>{JSON.stringify(data, null, "\t")}</pre>);
-  }, [data]);
+  // React.useEffect(() => {
+  //   console.log(<pre>{JSON.stringify(data, null, "\t")}</pre>);
+  // }, [data]);
 
   if (!data) {
     return <>Loading....</>;
@@ -53,14 +61,18 @@ const Home = () => {
   return (
     <main className={styles.main}>
       <h1>Welcome to SWAPI consumer under Next.js 13.4</h1>
-      <ul>
-        {data.results!.map((obj: swapiItem, index: number) => (
-          <li key={index}>
-            <Link href={`/person/${obj.name.replace(" ", "_")}`} >{obj.name}</Link>
-          </li>
-        ))}
-      </ul>
-      <pre>{JSON.stringify(data, null, 5)}</pre>
+      {/* <Suspense fallback={<p>Loading...1111</p>}>
+        <List data={data} />
+      </Suspense> */}
+
+        <ul>
+          {data.results!.map((obj: swapiItem, index: number) => (
+            <li key={index}>
+              <Link href={`/person/${obj.name.replace(" ", "_")}`} >{obj.name}</Link>
+            </li>
+          ))}
+        </ul>
+      {/* <pre>{JSON.stringify(data, null, 5)}</pre> */}
     </main>
   );
 };
